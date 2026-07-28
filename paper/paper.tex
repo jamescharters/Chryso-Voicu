@@ -4,6 +4,20 @@
 
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{iftex}
+% Polytonic Greek: render inline Greek words in a font with full coverage.
+\ifXeTeX
+  \newfontfamily\greekfont[
+    Path=fonts/Noto_Serif/static/,
+    Extension=.ttf,
+    UprightFont=NotoSerif-Regular,
+    BoldFont=NotoSerif-Bold,
+    ItalicFont=NotoSerif-Italic
+  ]{NotoSerif}
+  \newcommand{\gk}[1]{{\greekfont #1}}
+\else
+  \newcommand{\gk}[1]{#1}
+\fi
 
 \title{Finding Severian among the Pseudo-Chrysostoms: Interpretable, Calibrated Authorship Verification on Open Greek Data}
 
@@ -158,6 +172,22 @@ The verification scores are corroborated by the unsupervised structure of the da
   \caption{Two-dimensional PCA projection (axes from the reference corpus) of PC groups (circles) and candidate authors (squares). PC1 sits beside Chrysostom.}
   \label{fig:pca}
 \end{figure}
+
+\subsection{Which words separate the rivals}
+
+The verdicts rest on features a philologist can name. Table~\ref{tab:distinctive} lists the function words most distinctive of each rival, ranked by a Welch $t$-statistic over the reference-standardised frequencies. Severian's markers are narrative and citational -- \gk{λέγει} (``he says''), \gk{ἐγένετο} (``it came to pass''), \gk{ὅτε} (``when''), the movable-nu \gk{φησὶν} -- while Chrysostom's are the connectives of argument -- \gk{γάρ} (``for''), \gk{ἂν}, \gk{καθάπερ} (``just as''), \gk{οὐκέτι} (``no longer'') -- and the bare \gk{φησί}. The two even part company on a single orthographic reflex of the same verb of speaking, Severian preferring \gk{φησὶν} and Chrysostom \gk{φησί}. The part-of-speech channel agrees: Chrysostom is marked most strongly by adverb chains (the trigrams $d$--$d$--$v$ and $v$--$d$--$d$), Severian by nominal, narrative sequences.
+
+These markers are not merely group-level averages; they track the individual verdicts. Projecting each group onto the Severian-minus-Chrysostom discriminator axis (positive leans Severian, negative Chrysostom) places the genuinely Chrysostomic PC1 on the Chrysostom side ($-0.065$) and the Severian-verified groups on the other (PC9 $+0.143$, PC21 $+0.126$, PC16 $+0.075$). The words that separate the two authors are the words that decide the attributions.
+
+A last question is whether the historical confusion of the two men reflects a genuine likeness of style. It does not. A leave-one-out test separates their genuine works with $97\%$ accuracy over 35 homilies, and the distance between their centroids ranks only eleventh of twenty-one among candidate-author pairs -- no closer than Eusebius to Origen. The manuscripts merged the two because Severian preached in Chrysostom's city, in his genre and his lifetime, and his homilies travelled under the more famous name; their prose was never the reason. That the confusion is one of transmission and not of style is exactly what makes it tractable to a stylometric method.
+
+\begin{table}[t]
+  \centering
+  \small
+  \input{tables/distinctive.tex}
+  \caption{Function words most distinctive of each rival, ranked by a Welch $t$-statistic over reference-standardised frequencies. Severian favours narrative and citational words; Chrysostom favours the connectives of argument.}
+  \label{tab:distinctive}
+\end{table}
 
 \section{Discussion}
 

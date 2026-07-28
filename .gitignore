@@ -183,3 +183,6 @@ tagged-ocr/
 ocr-results/
 ocr-retag.log
 models-ocr/
+
+# XeLaTeX intermediate
+*.xdv
