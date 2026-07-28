@@ -64,6 +64,25 @@ This paper pursues the complementary path. We keep the interpretable, feature-ba
 
 \section{Results}
 
+\subsection{The verifier works, and three methods agree}
+
+Before applying the verifier to disputed texts, we measure it on labelled reference authors. From authors with at least five works we build 630 same/different-author verification problems and score each with three independent feature-space methods: the impostors win-fraction used here, Burrows's Delta to an author centroid, and cosine similarity. All three separate the classes well (Table~\ref{tab:benchmark}, Figure~\ref{fig:roc}); the impostors method is the most accurate (ROC-AUC $0.998$, $F_1$ $0.957$), and the three scores agree closely (Spearman $\rho$ between $0.81$ and $0.95$). The verdicts that follow are therefore both accurate and robust to the choice of scorer.
+
+\begin{table}[t]
+  \centering
+  \small
+  \input{tables/benchmark.tex}
+  \caption{Verification benchmark on 630 problems from the reference authors. The impostors method used in this paper is the most accurate, and Delta and cosine corroborate it.}
+  \label{tab:benchmark}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.72\linewidth]{figures/roc.pdf}
+  \caption{Verification ROC on the reference authors for the three scorers. All lie well above chance; the impostors method is best.}
+  \label{fig:roc}
+\end{figure}
+
 \paragraph{Calibration.} On held-out reference works the verifier separates same-author from different-author cases almost perfectly: genuine Severian works score a mean BDI of $0.86$ against Severian, other authors $0.09$ (AUC $\approx 1.0$; Figure~\ref{fig:calibration}). Scores are therefore interpretable on an absolute scale, and they are stable: across five random seeds the standard deviation of a group's score is $0.00$--$0.04$. Figure~\ref{fig:calibration} also shows that most pseudo-Chrysostom groups fall in the intermediate zone between the two reference distributions -- neither confidently Severian nor confidently foreign.
 
 \begin{figure}[t]
