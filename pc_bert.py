@@ -76,21 +76,26 @@ def main():
 
     rng = np.random.RandomState(0)
     cnt = Counter(au)
+    files = ref["file"].to_numpy()
     authors = sorted(a for a in cnt if cnt[a] >= MIN_WORKS)
+    nfiles = {a: len(set(files[au == a])) for a in authors}
+    pos_authors = [a for a in authors if nfiles[a] >= 2]      # need >=2 documents to self-verify
     centH = {a: Zref[au == a].mean(0) for a in set(au)}
     centB = {a: Bref[au == a].mean(0) for a in set(au)}
 
     # ---- benchmark: same/different-author problems, scored by each channel ----
+    # positives verify a query against DIFFERENT documents (same-file siblings excluded)
     rows = []
-    for a in authors:
+    for a in pos_authors:
         idx = np.where(au == a)[0]
-        n = len(idx)
-        for wi in rng.choice(idx, min(N_QUERY, n), replace=False):
-            tgt = idx[idx != wi]
+        for wi in rng.choice(idx, min(N_QUERY, len(idx)), replace=False):
+            tgt = idx[(idx != wi) & (files[idx] != files[wi])]
+            if len(tgt) == 0:
+                continue
             rows.append((1,
                          bdi(Zref[wi], Zref[tgt], Zref[au != a], rng),
                          bdi(Bref[wi], Bref[tgt], Bref[au != a], rng),
-                         cos_to_centroid(Bref[wi], (centB[a] * n - Bref[wi]) / (n - 1))))
+                         cos_to_centroid(Bref[wi], Bref[tgt].mean(0))))
             for b in rng.choice([x for x in authors if x != a], N_NEG, replace=False):
                 rows.append((0,
                              bdi(Zref[wi], Zref[au == b], Zref[au != b], rng),

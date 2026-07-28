@@ -56,21 +56,29 @@ def best_f1(y, s):
 def main():
     ref, pc, Zref, Zpc = load_matrix()
     au = ref["author"].to_numpy()
+    files = ref["file"].to_numpy()
     cnt = Counter(au)
     authors = sorted(a for a in cnt if cnt[a] >= MIN_WORKS)
+    # A same-author (positive) problem must verify a query against DIFFERENT
+    # documents, never its own segmented siblings, so it requires >=2 files.
+    nfiles = {a: len(set(files[au == a])) for a in authors}
+    pos_authors = [a for a in authors if nfiles[a] >= 2]
     cent = {a: Zref[au == a].mean(0) for a in set(au)}
     rng = np.random.RandomState(0)
+    print(f"{len(pos_authors)}/{len(authors)} reference authors (>= {MIN_WORKS} works) "
+          f"have >= 2 documents and can be self-verified across documents\n")
 
     rows = []
-    for a in authors:
+    for a in pos_authors:
         idx = np.where(au == a)[0]
-        n = len(idx)
-        for wi in rng.choice(idx, min(N_QUERY, n), replace=False):
+        for wi in rng.choice(idx, min(N_QUERY, len(idx)), replace=False):
             q = Zref[wi]
-            tgt = Zref[idx[idx != wi]]
-            c_self = loo_centroid(cent[a], q, n)
+            tgt_idx = idx[(idx != wi) & (files[idx] != files[wi])]  # drop same-document siblings
+            if len(tgt_idx) == 0:
+                continue
+            c_self = Zref[tgt_idx].mean(0)
             rows.append((1,
-                         bdi(q, tgt, Zref[au != a], rng),
+                         bdi(q, Zref[tgt_idx], Zref[au != a], rng),
                          delta_score(q, c_self), cos_score(q, c_self)))
             for b in rng.choice([x for x in authors if x != a], N_NEG, replace=False):
                 rows.append((0,

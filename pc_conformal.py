@@ -46,33 +46,42 @@ def pval(nonconf, null):
 def main():
     ref, pc, Zref, Zpc = load_matrix()
     au = ref["author"].to_numpy()
+    files = ref["file"].to_numpy()
     rng = np.random.RandomState(SEED)
     docs = {a: Zref[au == a] for a in set(au)}
+    afile = {a: files[au == a] for a in set(au)}
 
     cand = [a for a in CAND if docs.get(a) is not None and len(docs[a]) >= 3]
     print(f"candidate 'room': {', '.join(name(a) for a in cand)}")
     print(f"reference {Zref.shape[0]} works x {Zref.shape[1]} feats; PC {Zpc.shape[0]} texts\n")
 
-    def nonconf(q, A, drop=None):
-        """1 - BDI(q, author A). `drop` excludes one row index of A's docs (self-match)."""
+    def nonconf(q, A, drop_file=None):
+        """1 - BDI(q, author A), excluding all of A's segments from document `drop_file`
+        so a query is never matched to its own segmented siblings."""
         tgt = docs[A]
-        if drop is not None:
-            keep = np.ones(len(tgt), bool)
-            keep[drop] = False
-            tgt = tgt[keep]
-        imp = Zref[au != A]
-        return 1.0 - bdi(q, tgt, imp, rng)
+        if drop_file is not None:
+            tgt = tgt[afile[A] != drop_file]
+        if len(tgt) == 0:
+            return None
+        return 1.0 - bdi(q, tgt, Zref[au != A], rng)
 
-    # ---- same-author calibration: leave-one-out nonconformity for every candidate work ----
+    # ---- same-author calibration: cross-DOCUMENT nonconformity for every candidate work ----
+    # A single-document author cannot be self-verified across documents and is skipped
+    # from calibration (it can still be a candidate that PC texts are scored against).
     cal = []          # list of (author, global_row_index, nonconformity)
     for A in cand:
         idx = np.where(au == A)[0]
-        for local, gi in enumerate(idx):
-            cal.append((A, gi, nonconf(Zref[gi], A, drop=local)))
+        if len(set(files[idx])) < 2:
+            continue
+        for gi in idx:
+            nc = nonconf(Zref[gi], A, drop_file=files[gi])
+            if nc is not None:
+                cal.append((A, gi, nc))
     cal_nc = np.array([c[2] for c in cal])
     cal_gi = np.array([c[1] for c in cal])
-    print(f"[calibration] {len(cal)} same-author nonconformity scores "
-          f"(mean {cal_nc.mean():.2f}); pooled null across {len(cand)} authors.\n")
+    n_cal_auth = len({c[0] for c in cal})
+    print(f"[calibration] {len(cal)} cross-document same-author nonconformity scores "
+          f"(mean {cal_nc.mean():.2f}); pooled null across {n_cal_auth} multi-document authors.\n")
 
     # ---- (1) coverage: leave-one-out over candidate works (true author IS in the room) ----
     print("=" * 68)
@@ -84,7 +93,7 @@ def main():
             pset = []
             for A in cand:
                 nc = nc_same if A == A_true else nonconf(Zref[gi], A)
-                if pval(nc, null) > alpha:
+                if nc is not None and pval(nc, null) > alpha:
                     pset.append(A)
             covered.append(A_true in pset)
             sizes.append(len(pset))
