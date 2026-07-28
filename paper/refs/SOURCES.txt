@@ -1,6 +1,13 @@
 Reference PDFs for the paper (local archive so they are not lost).
 All items are open-access (arXiv / HAL / CEUR-WS, CC-BY or equivalent).
 
+2023-clerice-glaise-pseudo-chrysostoms.pdf
+  Clerice, Glaise. "Twenty-One* Pseudo-Chrysostoms and more: authorship
+  verification in the patristic world." CHR 2023, CEUR-WS. hal-04211176v2.
+  The direct predecessor this paper reproduces and extends: Siamese network +
+  signal-to-noise-ratio distance over MFW/affix/POS-trigram features, AUC-ROC
+  84.5%, verdicts against Voicu's 21 pseudo-Chrysostoms (Table 5: C/HP/LP/R/U).
+
 2024-gorovaia-sui-generis.pdf
   Gorovaia, Schmidt, Yamshchikov. "Sui Generis: Large Language Models for
   Authorship Attribution and Verification in Latin." NLP4DH 2024.
