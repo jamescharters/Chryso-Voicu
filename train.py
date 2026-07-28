@@ -127,6 +127,22 @@ def main():
         json.dump({**vars(a), "n_pos": n_pos, "n_fw": n_fw, "n_tri": n_tri,
                    "slug": slug}, f, indent=2)
 
+    # human-readable record of exactly how this model was trained
+    with open(os.path.join(out, "params.txt"), "w") as f:
+        f.write(f"# Training parameters for {slug}\n\n")
+        f.write(f"features file : {a.features}\n")
+        f.write(f"feature dims  : {n_pos} POS + {n_fw} FW + {n_tri} affixes "
+                f"= {n_pos + n_fw + n_tri}\n")
+        f.write(f"loss          : {a.loss}\n")
+        f.write(f"learning rate : {a.lr}\n")
+        f.write(f"embed size    : {a.size}\n")
+        f.write(f"batch size    : {a.batch}\n")
+        f.write(f"dropout       : {a.dropout}\n")
+        f.write(f"class sampling: {a.sample}\n")
+        f.write(f"epochs        : {a.epochs} (patience {a.patience})\n")
+        f.write(f"accelerator   : {a.accelerator}\n")
+        f.write(f"seed          : {a.seed}\n")
+
     test_pairs = get_df_prediction(trainer, model=model, compared=wraps["test"], threshold=6)
     test_pairs.to_csv(os.path.join(out, "test-results.csv"), index=False)
     tp = test_pairs.dropna(subset=["IsAPair", "Distance"])
