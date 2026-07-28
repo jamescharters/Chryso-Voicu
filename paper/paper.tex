@@ -141,6 +141,16 @@ The reject option is not, however, a remedy for an absent author who writes like
 
 \paragraph{Agreement with the neural verifier.} The reproduced Siamese network of \textcite{clerice2023}, trained on the same open data with the original settings (100 epochs, test AUC $0.91$) and scoring by its learned SNR-D distance, returns the same verdicts on the ground-truth groups: PC1 to Chrysostom, and PC21 and PC9 to Severian, together with the same PC12 miss. The interpretable impostors method and the neural metric-learner agree wherever the answer can be checked, so interpretability here costs no accuracy.
 
+\paragraph{A frozen neural channel adds nothing.} A reviewer might still suspect that a modern contextual encoder would beat the hand-crafted features. It does not. Taking the Ancient-Greek BERT that produced our part-of-speech tags \cite{superpeitho} as a frozen document encoder -- inference only, no fine-tuning -- we mean-pool a $768$-dimensional embedding per text and treat it as a fourth verification channel. On the same $630$ benchmark problems it verifies authorship as accurately as the transparent features and no better (Table~\ref{tab:bert}): impostors on the neural embedding reach ROC-AUC $0.993$, against $0.995$ for the function-word, part-of-speech and affix channels combined. The two agree closely (Spearman $0.90$ across the benchmark), and on the pseudo-Chrysostoms they return the same leading candidate for nineteen of the twenty-two groups, including every ground-truth case -- PC1 to Chrysostom, PC9 and PC21 to Severian. Where they part (PC4, PC19) the neural channel leans to Severian, the corpus's dominant author, which is the pull calibration is meant to resist. A $768$-dimensional black box thus buys nothing over a thousand function words and some affixes, and it corroborates rather than overturns the interpretable verdicts.
+
+\begin{table}[t]
+  \centering
+  \small
+  \input{tables/bert.tex}
+  \caption{A frozen Ancient-Greek BERT, used inference-only as a fourth channel, on the $630$-problem verification benchmark. Impostors on the neural embedding match the hand-crafted channels rather than improving on them.}
+  \label{tab:bert}
+\end{table}
+
 \begin{table}[t]
   \centering
   \small
@@ -211,7 +221,7 @@ A last question is whether the historical confusion of the two men reflects a ge
 
 \section{Discussion}
 
-The exercise carries a methodological lesson beyond the individual verdicts. A nearest-neighbour reading of an imbalanced reference manufactures a consensus -- here, ``everything is Severian'' -- that neither calibration nor the scholarship supports. Calibrated verification with an explicit impostor set, a provenance control, and a per-channel breakdown recovers a defensible and inspectable picture: it reproduces named attributions where they exist, including the sole genuine Chrysostom, and it declines to over-commit on the rest.
+The exercise carries a methodological lesson beyond the individual verdicts. A nearest-neighbour reading of an imbalanced reference manufactures a consensus -- here, ``everything is Severian'' -- that neither calibration nor the scholarship supports. Calibrated verification with an explicit impostor set, a provenance control, and a per-channel breakdown recovers a defensible and inspectable picture: it reproduces named attributions where they exist, including the sole genuine Chrysostom, and it declines to over-commit on the rest. That the interpretable representation is no sacrifice of accuracy is worth stating plainly: both a trained Siamese metric and a frozen contextual encoder, added as extra channels, match the hand-crafted features without beating them and agree with their verdicts -- legibility here is free.
 
 \paragraph{Limitations.} The reference, though open, is a single assemblage; author families it lacks (the Anomoean PC12) cannot be found, and this is a boundary of any closed-candidate method. Affix-driven verdicts may reflect orthographic normalisation in the editions rather than authorship, a caveat the per-channel view makes visible but does not remove. The two Severian-positive ground-truth attributions (PC9's \textsc{cpg} 4215; PC21's \textsc{cpg} 4564) rest on the current editorial consensus, itself in part still argued; our agreement corroborates but does not settle them. Finally, the proposals for the anonymous groups are starting points for philological work, not conclusions.
 
