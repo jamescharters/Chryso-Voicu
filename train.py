@@ -37,13 +37,15 @@ torch.load = _load
 
 from freestyl.dataset.dataframe_wrapper import DataframeWrapper
 from freestyl.supervised.siamese import train_dataframewrappers, get_df_prediction
+from corpus_balance import balance_corpus, DEFAULT_MIN_WORKS, DEFAULT_CAP_WORKS
 
-# ── Default configuration (the paper's winning row) ──────────────────────────
+# ── Default configuration (the paper's winning row) ──────────────────
 DEFAULTS = dict(
     features="tlg-features.csv",
     loss="stn_contrastive",
     lr=1e-4, size=64, batch=64, dropout=0.3, sample=2,
     epochs=100, patience=20,
+    min_works=DEFAULT_MIN_WORKS, cap_works=DEFAULT_CAP_WORKS,
 )
 
 def parse_args():
@@ -58,6 +60,10 @@ def parse_args():
     p.add_argument("--sample", type=int, default=DEFAULTS["sample"])
     p.add_argument("--epochs", type=int, default=DEFAULTS["epochs"])
     p.add_argument("--patience", type=int, default=DEFAULTS["patience"])
+    p.add_argument("--min-works", dest="min_works", type=int, default=DEFAULTS["min_works"],
+                   help="drop authors with fewer than this many works (fair representation)")
+    p.add_argument("--cap-works", dest="cap_works", type=int, default=DEFAULTS["cap_works"],
+                   help="down-sample authors above this many works; 0 disables the cap")
     p.add_argument("--accelerator", default="mps" if torch.backends.mps.is_available() else "cpu")
     p.add_argument("--force", action="store_true", help="retrain even if the slug exists")
     return p.parse_args()
@@ -65,10 +71,13 @@ def parse_args():
 def make_slug(a, n_pos, n_fw, n_tri):
     return (f"POS{n_pos}_FW{n_fw}_TRI{n_tri}_{a.loss.replace('_','')}"
             f"_LR{a.lr:g}_S{a.size}_B{a.batch}_D{a.dropout}_SMP{a.sample}"
-            f"_EP{a.epochs}_seed{a.seed}")
+            f"_MIN{a.min_works}_CAP{a.cap_works}_EP{a.epochs}_seed{a.seed}")
 
-def build_wrappers(features_csv, seed):
-    df = pd.read_csv(features_csv).sample(frac=1, random_state=seed)
+def build_wrappers(features_csv, seed, min_works=DEFAULT_MIN_WORKS, cap_works=DEFAULT_CAP_WORKS):
+    df = pd.read_csv(features_csv)
+    # fair representation: repair lost labels, drop singletons, cap prolific authors
+    df = balance_corpus(df, seed=seed, min_works=min_works, cap_works=cap_works)
+    df = df.sample(frac=1, random_state=seed)
     keep = [c for c in df.columns if c.startswith(("$POS$", "$MFW$", "$TRI$"))]
     ignore = [c for c in df.columns if c not in keep]
     n_pos = sum(c.startswith("$POS$") for c in keep)
@@ -96,7 +105,8 @@ def build_wrappers(features_csv, seed):
 
 def main():
     a = parse_args()
-    wraps, (n_pos, n_fw, n_tri) = build_wrappers(a.features, a.seed)
+    wraps, (n_pos, n_fw, n_tri) = build_wrappers(a.features, a.seed,
+                                                 min_works=a.min_works, cap_works=a.cap_works)
     slug = make_slug(a, n_pos, n_fw, n_tri)
     out = os.path.join("models", slug)
 
@@ -139,6 +149,8 @@ def main():
         f.write(f"batch size    : {a.batch}\n")
         f.write(f"dropout       : {a.dropout}\n")
         f.write(f"class sampling: {a.sample}\n")
+        f.write(f"min works/auth: {a.min_works}   (authors below this are dropped)\n")
+        f.write(f"cap works/auth: {a.cap_works}   (authors above this are down-sampled)\n")
         f.write(f"epochs        : {a.epochs} (patience {a.patience})\n")
         f.write(f"accelerator   : {a.accelerator}\n")
         f.write(f"seed          : {a.seed}\n")

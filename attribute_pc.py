@@ -27,6 +27,7 @@ _cloud_io._load = _torch_load_unsafe
 from freestyl.dataset.dataframe_wrapper import DataframeWrapper
 from freestyl.supervised.siamese.features.model import SiameseFeatureModule
 from freestyl.supervised.siamese.features.data import make_dataloader as FeatureDataLoader
+from corpus_balance import balance_corpus
 
 # ── Load model (latest checkpoint) ──────────────────────────────────────────
 import glob
@@ -41,6 +42,9 @@ trainer = pl.Trainer(accelerator="mps", devices=1, logger=False, enable_progress
 # ── Load features ─────────────────────────────────────────────────────────────
 print("Loading features...")
 tlg_df = pd.read_csv("tlg-features.csv")
+# fair representation: repair lost PTA labels + balance authors so the attribution
+# corpus is not dominated by a few prolific writers (same control as training).
+tlg_df = balance_corpus(tlg_df, seed=1000)
 pc_df  = pd.read_csv("pc-features.csv")
 
 # Use only features the model knows

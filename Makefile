@@ -13,6 +13,7 @@
 #   make clean-derived  remove regenerable CSV/feature artefacts (keeps tagged/)
 #
 # Variables:  SEED (train), N (ensemble size), EPOCHS (override 100)
+#             CAP (max works/author, default 20), MIN (min works/author, default 2)
 # =============================================================================
 
 VENV      := venv/bin/python
@@ -24,6 +25,8 @@ NB        := jupyter nbconvert --to notebook --execute --inplace \
 SEED      ?= 1000
 N         ?= 10
 EPOCHS    ?= 100
+CAP       ?= 20
+MIN       ?= 2
 
 .PHONY: help setup tag-tlg tag-pc features train ensemble verify attribute models clean-derived
 
@@ -49,12 +52,12 @@ features:
 
 # ── Training (param-keyed; safe to re-run) ───────────────────────────────────
 train:
-	$(VENV) train.py --seed $(SEED) --epochs $(EPOCHS)
+	$(VENV) train.py --seed $(SEED) --epochs $(EPOCHS) --cap-works $(CAP) --min-works $(MIN)
 
 ensemble:
 	@for s in $$(seq 1000 $$(( 1000 + $(N) - 1 ))); do \
 		echo "=== seed $$s ==="; \
-		$(VENV) train.py --seed $$s --epochs $(EPOCHS) || exit 1; \
+		$(VENV) train.py --seed $$s --epochs $(EPOCHS) --cap-works $(CAP) --min-works $(MIN) || exit 1; \
 	done
 	$(VENV) ensemble_verify.py --from-models
 
