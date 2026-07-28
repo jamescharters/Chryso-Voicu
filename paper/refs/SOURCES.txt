@@ -1,0 +1,37 @@
+Reference PDFs for the paper (local archive so they are not lost).
+All items are open-access (arXiv / HAL / CEUR-WS, CC-BY or equivalent).
+
+2024-gorovaia-sui-generis.pdf
+  Gorovaia, Schmidt, Yamshchikov. "Sui Generis: Large Language Models for
+  Authorship Attribution and Verification in Latin." NLP4DH 2024.
+  arXiv:2410.09245
+
+2024-schmidt-pseudo-dionysian.pdf
+  Schmidt, Vybornaya, Yamshchikov. "Fine-Tuning Pre-Trained Language Models for
+  Authorship Attribution of the Pseudo-Dionysian Ars Rhetorica." CHR 2024,
+  CEUR-WS Vol-3834, paper139.  https://ceur-ws.org/Vol-3834/paper139.pdf
+
+2025-clerice-pinche-wauchier.pdf
+  Clerice, Pinche. "Wauchier, Is That You? A Multi-Manuscript Authorship Analysis
+  of Saint Lambert's Life." CHR 2025, Anthology of Computers and the Humanities
+  Vol. 1, pp. 149-165. DOI 10.63744/QsBV0XYj8wRC ; hal-05154115v2
+
+2025-schmidt-better-call-claude.pdf
+  Schmidt, Roemisch, Halchynska, Gorovaia, Yamshchikov. "Team better_call_claude:
+  Style Change Detection using a Sequential Sentence Pair Classifier." PAN@CLEF 2025.
+  arXiv:2508.00675
+
+2026-vidalgorene-kindt-patrologia-graeca-corpus.pdf
+  Vidal-Gorene, Kindt. "The Patrologia Graeca Corpus: OCR, Annotation, and Open
+  Release of Noisy Nineteenth-Century Polytonic Greek Editions." 2026.
+  arXiv:2603.09470 . Source of the PG OCR texts excluded from the POS channel.
+
+severian-genuine-works-cpg.pdf, severian-genuine-works-cpg-v2.pdf
+  Compilations of Severian of Gabala's genuine works with CPG numbers
+  (CPG 4185-4295), used to check the ground-truth attributions (e.g. PC9 = CPG 4215
+  "In illud: Pater, transeat"; Severian's Genesis = CPG 4194, distinct from PC1's
+  CPG 4410). Provenance: CPG II / Roger Pearse's CPG-based compilation.
+
+Not archived here (abstract/metadata only during the study):
+  - Schmidt, Scalia. "Accessus ad auctorem: Honorius Augustodunensis" (2025).
+  - Istas. "De l'Urtext aux reseaux de neurones" (2026).

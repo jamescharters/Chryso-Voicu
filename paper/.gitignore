@@ -10,8 +10,8 @@
 *.run.xml
 *.synctex.gz
 *.toc
-build.log
-_pg*.png
+build*.log
+_*.png
 paper.pdf
 
 # macOS
