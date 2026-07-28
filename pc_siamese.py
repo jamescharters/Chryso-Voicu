@@ -51,7 +51,7 @@ def embeddings(model, dfw, device):
 
 
 def main():
-    ckpt = sorted(glob.glob("models/*/model.ckpt"))[-1]
+    ckpt = max(glob.glob("models/*/model.ckpt"), key=os.path.getmtime)
     print(f"model: {ckpt}")
     model = SiameseFeatureModule.load_from_checkpoint(ckpt)
     model.eval()
