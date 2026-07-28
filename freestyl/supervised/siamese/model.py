@@ -47,7 +47,7 @@ class BaseSiameseModule(pl.LightningModule):
         # self.miner = miners.BatchEasyHardMiner()
 
         # Remember: AUC ROC should be maximized to ONE
-        self.aucroc: AUROC = AUROC(num_classes=None)
+        self.aucroc: AUROC = AUROC(task='binary')
         self.linear: Optional[torch.nn.Linear] = None
 
         if loss.lower().endswith("manhattan"):

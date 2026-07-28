@@ -104,7 +104,7 @@ class SiamesePipeline(BaseSupervisedPipeline):
         model = self.get_a_model(model)
 
         predictions, _ = get_df_prediction(
-            trainer=Trainer(gpus=0, accelerator=self.accelerator),
+            trainer=Trainer(devices=0, accelerator=self.accelerator),
             model=model,
             compared=data,
             comparator=comparator,
@@ -146,7 +146,7 @@ class SiamesePipeline(BaseSupervisedPipeline):
                 self.comparison_sets[f"KFold{idx}"] = (ktrain, ktest)
             # Do tests, record the results
             pairs, _ = get_df_prediction(
-                trainer=Trainer(gpus=0, accelerator=self.accelerator),
+                trainer=Trainer(devices=0, accelerator=self.accelerator),
                 model=model,
                 compared=ktest,
                 comparator=ktrain,
@@ -175,7 +175,7 @@ class SiamesePipeline(BaseSupervisedPipeline):
     ):
         model = self.get_a_model(model)
         pairs, _ = get_df_prediction(
-            trainer=Trainer(gpus=0, accelerator=self.accelerator),
+            trainer=Trainer(devices=0, accelerator=self.accelerator),
             model=model,
             compared=data,
             comparator=comparator,

@@ -1,7 +1,15 @@
 import numpy as np
-from scipy.cluster import _hierarchy
-from scipy.cluster.hierarchy import _convert_to_double, _warning, _LINKAGE_METHODS, optimal_leaf_ordering
+from scipy.cluster.hierarchy import _hierarchy, optimal_leaf_ordering
+from scipy.cluster.hierarchy._hierarchy_impl import _warning, _LINKAGE_METHODS
 from scipy.spatial import distance as distance
+
+
+def _convert_to_double(X):
+    if X.dtype != np.float64:
+        X = X.astype(np.float64)
+    if not X.flags['C_CONTIGUOUS']:
+        X = X.copy()
+    return X
 
 
 __all__ = ["manhattan_ward"]

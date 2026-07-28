@@ -19,8 +19,7 @@ def df_relative_frequencies(data: pd.DataFrame) -> pd.DataFrame:
     array = data.fillna(0).to_numpy(na_value=0)
     # Compute probabilities
     probs = relative_frequencies(array)
-    data.loc[:, :] = probs
-    return data
+    return pd.DataFrame(probs, index=data.index, columns=data.columns)
 
 
 def relative_frequencies(data: np.array) -> np.array:

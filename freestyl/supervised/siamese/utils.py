@@ -3,9 +3,11 @@ import collections
 
 import pandas as pd
 import pytorch_lightning as pl
-from pytorch_lightning.loggers import LightningLoggerBase
-from pytorch_lightning.loggers.base import rank_zero_experiment
-from pytorch_lightning.utilities import rank_zero_only
+from pytorch_lightning.loggers import Logger as LightningLoggerBase
+try:
+    from pytorch_lightning.utilities.rank_zero import rank_zero_only
+except ImportError:
+    from pytorch_lightning.utilities import rank_zero_only
 from pytorch_metric_learning.distances import SNRDistance
 
 import torch
@@ -42,7 +44,6 @@ class History_dict(LightningLoggerBase):
         return "1.0"
 
     @property
-    @rank_zero_experiment
     def experiment(self):
         # Return the experiment object associated with this logger.
         return

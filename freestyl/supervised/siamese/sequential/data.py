@@ -7,7 +7,12 @@ import regex
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.nn import Module
-from torchtext.vocab import vocab, Vocab
+from torchtext.vocab import Vocab
+try:
+    from torchtext.vocab import vocab
+except ImportError:
+    # torchtext ≥0.13 moved vocab() to build_vocab_from_iterator; provide shim
+    from torchtext.vocab import build_vocab_from_iterator as vocab
 from torch.nn.utils.rnn import pad_sequence
 from sklearn.preprocessing import LabelEncoder
 from pandas import Series

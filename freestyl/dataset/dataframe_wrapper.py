@@ -177,8 +177,8 @@ class DataframeWrapper:
         return self._target
 
     @property
-    def features(self) -> Tuple[str, ...]:
-        return self._features
+    def features(self) -> List[str]:
+        return list(self._features)
 
     @property
     def dataframe(self) -> DataFrame:
@@ -349,11 +349,13 @@ class DataframeWrapper:
                 self._dataframe = self._top.dataframe.copy(deep=True)
             else:
                 self._dataframe = True
+            self.dataframe[self._top.features] = self.dataframe[self._top.features].astype(float)
             self.dataframe.loc[:, self._top.features] = df_relative_frequencies(self.xs)
             self._top._processing.append("relative")
 
         def normalize(self):
             if self.dataframe.shape[0] > 1:
+                self.dataframe[self._top.features] = self.dataframe[self._top.features].astype(float)
                 self.dataframe.loc[:, self._top.features] = normalizations(self.xs, inplace=False)
                 self._top._processing.append("normalization")
             else:
