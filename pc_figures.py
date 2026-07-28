@@ -70,13 +70,29 @@ def main():
     self_s = [bdi(Zref[i], Zref[sev[sev != i]], imp, rng) for i in rng.choice(sev, min(25, len(sev)), replace=False)]
     other_s = [bdi(Zref[i], Zref[sev], Zref[np.setdiff1d(oth, [i])], rng) for i in rng.choice(oth, 40, replace=False)]
     pc_s = M[:, cand.index("pta0001")]
-    fig, ax = plt.subplots(figsize=(5.2, 3.1))
-    bins = np.linspace(0, 1, 21)
-    ax.hist(other_s, bins=bins, alpha=0.65, label="other authors vs Severian", color="0.6")
-    ax.hist(self_s, bins=bins, alpha=0.65, label="genuine Severian (self)", color="0.2")
-    ax.scatter(pc_s, np.full_like(pc_s, -0.6), marker="|", s=80, color="C3", label="PC groups")
-    ax.set_xlabel("BDI score against Severian"); ax.set_ylabel("count")
-    ax.legend(fontsize=7, loc="upper center"); ax.set_title("Calibration of the Severian verifier")
+    fig, ax = plt.subplots(figsize=(5.6, 2.9))
+    jit = np.random.RandomState(1)
+
+    def strip(vals, y, color, label, edge="white"):
+        vals = np.asarray(vals, float)
+        yy = np.full(len(vals), y) + jit.uniform(-0.14, 0.14, len(vals))
+        ax.scatter(vals, yy, s=30, color=color, marker="o",
+                   edgecolor=edge, linewidth=0.5, label=label, zorder=3)
+
+    strip(self_s, 2, "0.15", "genuine Severian works")
+    strip(other_s, 1, "0.68", "other authors")
+    strip(pc_s, 0, "C0", "PC groups")
+    ax.axvline(0.86, ls="--", lw=0.9, color="0.45", zorder=1)
+    ax.text(0.86, 2.62, "same-author level", fontsize=6.5, ha="center", color="0.35")
+    for lbl in ("PC21", "PC16", "PC10"):
+        i = list(groups).index(lbl)
+        ax.annotate(lbl, (pc_s[i], 0), fontsize=6.5, ha="center", va="top",
+                    xytext=(0, -9), textcoords="offset points", color="C0")
+    ax.set_yticks([2, 1, 0])
+    ax.set_yticklabels(["genuine\nSeverian", "other\nauthors", "PC\ngroups"], fontsize=8)
+    ax.set_ylim(-0.6, 2.9); ax.set_xlim(-0.03, 1.03)
+    ax.set_xlabel("BDI verification score against Severian")
+    ax.set_title("Calibration of the Severian verifier")
     fig.tight_layout(); fig.savefig(f"{FIGDIR}/calibration.pdf"); plt.close(fig)
 
     # ---- centroids of candidate authors + PC groups (for dendrogram + PCA) ----
