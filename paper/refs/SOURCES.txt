@@ -35,3 +35,8 @@ severian-genuine-works-cpg.pdf, severian-genuine-works-cpg-v2.pdf
 Not archived here (abstract/metadata only during the study):
   - Schmidt, Scalia. "Accessus ad auctorem: Honorius Augustodunensis" (2025).
   - Istas. "De l'Urtext aux reseaux de neurones" (2026).
+
+2024-nagy-bootstrap-distance-imposters.pdf
+  Nagy, Ben. "Bootstrap Distance Imposters: High Precision Authorship Verification with
+  Improved Interpretability." CHR 2024, CEUR-WS Vol-3834, pp.482-493. The primary source
+  for the BDI method used in this paper.  https://ceur-ws.org/Vol-3834/paper61.pdf
