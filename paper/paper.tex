@@ -130,6 +130,24 @@ This paper pursues the complementary path. We keep the interpretable, feature-ba
 
 A group-level verdict presumes that each PC group is the work of one hand, yet the grouping is editorial and some clusters may be composite. We measure the internal cohesion of every multi-text group as the mean pairwise distance among its own texts, against a cross-group baseline of $0.81$ (Table~\ref{tab:internal} in the appendix). Most groups are markedly tighter than the baseline -- the seven sermons \emph{De ieiunio} (PC7) are the most cohesive at $0.28$, and PC16 at $0.41$ -- which supports reading them as authorial units. A few are as dispersed as random cross-group pairs: PC5, PC20, PC15, and PC3 sit near or above $0.85$. For those groups a single verification verdict may average over more than one author, and the prudent step is to verify their members individually.
 
+\subsection{The stylometric neighbourhood}
+
+The verification scores are corroborated by the unsupervised structure of the data. Figure~\ref{fig:dendrogram} clusters the PC group and candidate-author profiles under Burrows's Delta: Severian sits inside a branch of Severian-leaning groups (PC16, PC13, PC9, PC20, PC7), Chrysostom joins PC1, Theodoret joins PC10, and the dispersed groups PC5, PC12, PC19 and PCX fall out at the largest distances. A two-dimensional projection (Figure~\ref{fig:pca}) shows the same neighbourhoods, with PC1 beside Chrysostom and most groups gathered around the Antiochene authors; the low explained variance is expected for high-dimensional stylometric features and the clustering of Figure~\ref{fig:dendrogram} is the more reliable summary.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.96\linewidth]{figures/dendrogram.pdf}
+  \caption{Hierarchical clustering (average linkage, Burrows's Delta) of the PC groups and candidate authors (authors in bold). PC1 clusters with Chrysostom; a Severian branch gathers PC16, PC13, PC9, PC20 and PC7.}
+  \label{fig:dendrogram}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.96\linewidth]{figures/pca.pdf}
+  \caption{Two-dimensional PCA projection (axes from the reference corpus) of PC groups (circles) and candidate authors (squares). PC1 sits beside Chrysostom.}
+  \label{fig:pca}
+\end{figure}
+
 \section{Discussion}
 
 The exercise carries a methodological lesson beyond the individual verdicts. A nearest-neighbour reading of an imbalanced reference manufactures a consensus -- here, ``everything is Severian'' -- that neither calibration nor the scholarship supports. Calibrated verification with an explicit impostor set, a provenance control, and a per-channel breakdown recovers a defensible and inspectable picture: it reproduces named attributions where they exist, including the sole genuine Chrysostom, and it declines to over-commit on the rest.

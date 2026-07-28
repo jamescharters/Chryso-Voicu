@@ -19,6 +19,8 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import linkage, dendrogram
+from sklearn.decomposition import PCA
 
 from pc_verify import load_matrix, score_group, bdi, NAMES
 
@@ -76,6 +78,43 @@ def main():
     ax.set_xlabel("BDI score against Severian"); ax.set_ylabel("count")
     ax.legend(fontsize=7, loc="upper center"); ax.set_title("Calibration of the Severian verifier")
     fig.tight_layout(); fig.savefig(f"{FIGDIR}/calibration.pdf"); plt.close(fig)
+
+    # ---- centroids of candidate authors + PC groups (for dendrogram + PCA) ----
+    labels, vecs, kinds = [], [], []
+    for a in cand:
+        labels.append(SHORT[a]); vecs.append(Zref[au == a].mean(0)); kinds.append("author")
+    for g in groups:
+        labels.append(g); vecs.append(Zpc[pc.index[pc["author"] == g].to_numpy()].mean(0)); kinds.append("pc")
+    V = np.vstack(vecs)
+    kinds = np.array(kinds)
+
+    # ---- Figure 3: dendrogram (Burrows-Delta = Manhattan on z-scores, average linkage) ----
+    Zl = linkage(V, method="average", metric="cityblock")
+    fig, ax = plt.subplots(figsize=(5.6, 7.2))
+    dd = dendrogram(Zl, labels=labels, orientation="right", ax=ax,
+                    color_threshold=0, above_threshold_color="0.4", leaf_font_size=7.5)
+    lab_kind = {lab: k for lab, k in zip(labels, kinds)}
+    for t in ax.get_yticklabels():
+        if lab_kind.get(t.get_text()) == "author":
+            t.set_fontweight("bold"); t.set_color("C0")
+    ax.set_xlabel("Burrows's Delta"); ax.set_title("Clustering of PC groups and candidate authors")
+    fig.tight_layout(); fig.savefig(f"{FIGDIR}/dendrogram.pdf"); plt.close(fig)
+
+    # ---- Figure 4: PCA projection (axes from the reference corpus) ----
+    pca = PCA(n_components=2, random_state=0).fit(Zref)
+    XY = pca.transform(V)
+    ev = pca.explained_variance_ratio_ * 100
+    fig, ax = plt.subplots(figsize=(5.6, 4.6))
+    is_a = kinds == "author"
+    ax.scatter(XY[~is_a, 0], XY[~is_a, 1], s=22, c="0.55", marker="o", label="PC group")
+    ax.scatter(XY[is_a, 0], XY[is_a, 1], s=60, c="C0", marker="s", label="candidate author")
+    for (x, y), lab, k in zip(XY, labels, kinds):
+        ax.annotate(lab, (x, y), fontsize=7, fontweight="bold" if k == "author" else "normal",
+                    color="C0" if k == "author" else "0.35",
+                    xytext=(3, 2), textcoords="offset points")
+    ax.set_xlabel(f"PC1 ({ev[0]:.0f}%)"); ax.set_ylabel(f"PC2 ({ev[1]:.0f}%)")
+    ax.legend(fontsize=7, loc="best"); ax.set_title("Stylometric space: PC groups and candidate authors")
+    fig.tight_layout(); fig.savefig(f"{FIGDIR}/pca.pdf"); plt.close(fig)
 
     # ---- internal consistency of PC groups ----
     def cos_pairwise(X):
