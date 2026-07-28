@@ -40,7 +40,7 @@ More than fifty homilies of Severian of Gabala survive in Greek only because scr
 
 The corpus transmitted under the name of John Chrysostom accreted, over late antiquity and the Byzantine centuries, a large body of homilies he did not write. Many are simply anonymous; a substantial number belong to identifiable contemporaries whose works travelled more safely under a celebrated name. The clearest case is Severian of Gabala, Chrysostom's rival at the Synod of the Oak: almost all of his Greek homilies survive only among the Chrysostomic spuria printed in \emph{Patrologia Graeca} 48--64, and his genuine works occupy \textsc{cpg} 4185--4295 \cite{cpg,severian_wiki}. Sorting the pseudo-Chrysostomica -- assigning each item to Severian, to another named author, or to no one in particular -- has occupied philologists since de Aldama's \emph{Repertorium} \cite{dealdama1965} and, above all, the sustained work of Sever Voicu \cite{voicu}.
 
-Computational stylometry offers one route into this material. \textcite{clerice2023} verified a set of pseudo-Chrysostoms with a Siamese network trained on function words, part-of-speech trigrams, and character affixes. More recent work has turned to large language models and fine-tuned encoders: \textcite{gorovaia2024} evaluate GPT-4o and comparable systems on Latin patristic verification, and \textcite{schmidt2024} fine-tune Greek pre-trained models for the authorship of the pseudo-Dionysian \emph{Ars Rhetorica}. These approaches are powerful, yet their authors note a shared limitation for philological use: the models are steered with difficulty, are ``easily misled by semantics,'' and do not readily explain a verdict \cite{gorovaia2024}. For a scholar weighing an attribution, an unexplained judgement is of limited evidential value.
+Computational stylometry offers one route into this material. \textcite{clerice2023} verified a set of pseudo-Chrysostoms with a Siamese network trained on function words, part-of-speech trigrams, and character affixes. More recent work has turned to large language models and fine-tuned encoders: \textcite{gorovaia2024} evaluate GPT-4o and comparable systems on Latin patristic verification, and \textcite{schmidt2024} fine-tune Greek pre-trained models for the authorship of the pseudo-Dionysian \emph{Ars Rhetorica}. These approaches are powerful, yet their authors note a shared limitation for philological use: the models are steered with difficulty, are ``easily misled by semantics,'' and do not readily explain a verdict \cite{gorovaia2024}. For a scholar weighing an attribution, an unexplained judgement is of limited evidential value. Closest to the present study, \textcite{clerice2025} verify authorship across a massively anonymous Old French tradition with a feature-based imposters method; we adopt the same family of technique and press on its explanatory potential for Greek.
 
 This paper pursues the complementary path. We keep the interpretable, feature-based method, reproduce it on openly licensed data so the results can be checked and reused, and add the apparatus a verification claim requires. Our contributions are: (1) a reproduction of the feature pipeline of \textcite{clerice2023} on open corpora; (2) a calibrated verification protocol combining Bootstrap Distance Impostors \cite{koppel2014,kestemont2016} with a provenance control and a per-channel decomposition of the evidence; and (3) an evaluation against the published \textsc{cpg} attributions, on which the calibrated method reproduces four of five ground-truth cases and, for the anonymous majority, supplies confidence-graded proposals whose linguistic basis can be inspected.
 
@@ -56,7 +56,7 @@ This paper pursues the complementary path. We keep the interpretable, feature-ba
 
 \paragraph{Feature-space distances.} Within each channel we standardise features across the reference (a Burrows-style $z$-transform \cite{burrows2002}) and represent each author by the centroid of their works. A text's distance to a candidate is the mean absolute $z$-difference to that centroid, averaged over channels. Nearest-centroid attribution serves as a baseline.
 
-\paragraph{Calibrated verification.} Nearest-centroid answers ``which candidate is closest,'' not ``is this text by author $A$.'' For the latter we use Bootstrap Distance Impostors \cite{koppel2014,kestemont2016}: to score a text $q$ against author $A$, we repeatedly draw a random half of the features and a random pool of impostor documents, and record how often $q$'s nearest $A$-document is closer than its nearest impostor. The score is the fraction of iterations $A$ wins. To keep the comparison fair when authors differ greatly in size -- Severian has far more attributed works than Chrysostom -- we subsample a fixed number of target documents per iteration.
+\paragraph{Calibrated verification.} Nearest-centroid answers ``which candidate is closest,'' not ``is this text by author $A$.'' For the latter we use Bootstrap Distance Impostors \cite{koppel2014,kestemont2016,clerice2025}: to score a text $q$ against author $A$, we repeatedly draw a random half of the features and a random pool of impostor documents, and record how often $q$'s nearest $A$-document is closer than its nearest impostor. The score is the fraction of iterations $A$ wins. To keep the comparison fair when authors differ greatly in size -- Severian has far more attributed works than Chrysostom -- we subsample a fixed number of target documents per iteration.
 
 \paragraph{Provenance control.} Because the pseudo-Chrysostoms and the Severian comparanda are edited within the same project, a similarity could reflect shared digitization rather than authorship. Since no second edition of Severian exists in our data, we control for this within the Patristic Text Archive: if a group prefers Severian over \emph{other} same-provenance authors (Eusebius, Cyril, Athanasius, Theodoret), the signal is not merely editorial.
 
@@ -64,11 +64,25 @@ This paper pursues the complementary path. We keep the interpretable, feature-ba
 
 \section{Results}
 
-\paragraph{Calibration.} On held-out reference works the verifier separates same-author from different-author cases almost perfectly: genuine Severian works score a mean BDI of $0.86$ against Severian, other authors $0.09$ (AUC $\approx 1.0$). Scores are therefore interpretable on an absolute scale, and they are stable: across five random seeds the standard deviation of a group's score is $0.00$--$0.04$.
+\paragraph{Calibration.} On held-out reference works the verifier separates same-author from different-author cases almost perfectly: genuine Severian works score a mean BDI of $0.86$ against Severian, other authors $0.09$ (AUC $\approx 1.0$; Figure~\ref{fig:calibration}). Scores are therefore interpretable on an absolute scale, and they are stable: across five random seeds the standard deviation of a group's score is $0.00$--$0.04$. Figure~\ref{fig:calibration} also shows that most pseudo-Chrysostom groups fall in the intermediate zone between the two reference distributions -- neither confidently Severian nor confidently foreign.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.92\linewidth]{figures/calibration.pdf}
+  \caption{Calibration of the Severian verifier. Genuine Severian works (dark) and other authors (light) separate cleanly; the 22 PC groups (ticks) mostly sit between them.}
+  \label{fig:calibration}
+\end{figure}
 
 \paragraph{The baseline over-attributes.} Nearest-centroid attribution assigns all 22 groups to Severian. This is an artifact: Severian is the largest homiletic author in the reference, so any homily drifts toward his centroid. The finding says little about authorship, and it disagrees with the scholarship (below).
 
-\paragraph{Calibrated verdicts.} BDI is far more discriminating. Only two groups verify to Severian above the same-author level of $0.86$ -- PC21 ($0.98$) and PC16 ($0.90$); most sit in a consistent-but-unconfirmed band ($0.5$--$0.75$); and several point elsewhere. The provenance control holds for 18 of 22 groups, and the four exceptions each prefer a different named author rather than a generic Patristic Text Archive profile.
+\paragraph{Calibrated verdicts.} BDI is far more discriminating. Only two groups verify to Severian above the same-author level of $0.86$ -- PC21 ($0.98$) and PC16 ($0.90$); most sit in a consistent-but-unconfirmed band ($0.5$--$0.75$); and several point elsewhere. The full picture across the principal candidates is given in Figure~\ref{fig:heatmap}. The provenance control holds for 18 of 22 groups, and the four exceptions each prefer a different named author rather than a generic Patristic Text Archive profile.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/heatmap.pdf}
+  \caption{BDI verification score of each PC group against the principal candidate authors; darker is a stronger match. PC21 and PC16 verify to Severian, PC1 to Chrysostom, PC4 to Cyril, and PC19 to Theodoret.}
+  \label{fig:heatmap}
+\end{figure}
 
 \paragraph{Agreement with scholarship.} Five groups contain a work with a named modern attribution; these form a small ground-truth set (Table~\ref{tab:groundtruth}). The calibrated verifier agrees with the published attribution on four. Most striking is PC1: our method assigns it to Chrysostom rather than Severian, and PC1 is the one group in the study that scholarship regards as genuine Chrysostom (the \emph{In Genesim} sermons, \textsc{cpg} 4410, the only item not marked spurious). The nearest-centroid baseline had placed PC1 with Severian; calibration corrects the error. The single miss, PC12, is instructive: it is a pair of Anomoean homilies \cite{liebaert1969} whose author family is absent from the reference, so the verifier has no correct target and defaults to the nearest homilist.
 
@@ -112,6 +126,10 @@ This paper pursues the complementary path. We keep the interpretable, feature-ba
 
 \paragraph{Proposals for the anonymous groups.} For the seventeen groups that scholarship leaves without an author, the verdicts are hypotheses rather than confirmations. Two are worth a philologist's attention: PC16 verifies to Severian at $0.90$ across all channels, and PC19 leans to Theodoret on function-word evidence. Each is offered with its full per-channel profile so that the basis of the proposal is open to inspection.
 
+\subsection{Are the groups single authors?}
+
+A group-level verdict presumes that each PC group is the work of one hand, yet the grouping is editorial and some clusters may be composite. We measure the internal cohesion of every multi-text group as the mean pairwise distance among its own texts, against a cross-group baseline of $0.81$ (Table~\ref{tab:internal} in the appendix). Most groups are markedly tighter than the baseline -- the seven sermons \emph{De ieiunio} (PC7) are the most cohesive at $0.28$, and PC16 at $0.41$ -- which supports reading them as authorial units. A few are as dispersed as random cross-group pairs: PC5, PC20, PC15, and PC3 sit near or above $0.85$. For those groups a single verification verdict may average over more than one author, and the prudent step is to verify their members individually.
+
 \section{Discussion}
 
 The exercise carries a methodological lesson beyond the individual verdicts. A nearest-neighbour reading of an imbalanced reference manufactures a consensus -- here, ``everything is Severian'' -- that neither calibration nor the scholarship supports. Calibrated verification with an explicit impostor set, a provenance control, and a per-channel breakdown recovers a defensible and inspectable picture: it reproduces named attributions where they exist, including the sole genuine Chrysostom, and it declines to over-commit on the rest.
@@ -123,5 +141,27 @@ The exercise carries a methodological lesson beyond the individual verdicts. A n
 Interpretable, feature-based stylometry remains a serviceable instrument for disputed patristic authorship when it is equipped to make -- and to explain -- a verification claim. On open Greek data, a calibrated protocol reproduces the published attribution of the pseudo-Chrysostoms where scholarship provides one, identifies the single genuinely Chrysostomic group without prompting, and offers confidence-graded, per-channel proposals for the anonymous remainder. The result is not a black box that pronounces, but an instrument a philologist can interrogate.
 
 \printbibliography
+
+\appendix
+
+\section{Full results}
+
+Table~\ref{tab:full} reports every PC group with its \textsc{cpg} number, its BDI score against Severian and against Chrysostom, and the current scholarly attribution. Table~\ref{tab:internal} reports the internal cohesion of the multi-text groups.
+
+\begin{table}[h]
+  \centering
+  \small
+  \input{tables/pc-full.tex}
+  \caption{All 22 pseudo-Chrysostom groups: CPG number, BDI scores against Severian and Chrysostom, and current scholarly attribution.}
+  \label{tab:full}
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \small
+  \input{tables/internal.tex}
+  \caption{Internal cohesion of the multi-text PC groups: mean pairwise distance among a group's own texts (lower is tighter). The cross-group baseline is $0.81$.}
+  \label{tab:internal}
+\end{table}
 
 \end{document}
