@@ -177,3 +177,9 @@ cython_debug/
 #.idea/
 *.tar.gz
 models/
+
+# OCR transmission-noise study (derived outputs)
+tagged-ocr/
+ocr-results/
+ocr-retag.log
+models-ocr/
